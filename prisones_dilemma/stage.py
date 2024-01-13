@@ -10,8 +10,9 @@ class Stage:
         self.log_action = []
 
     def battle(self, player1: Player, player2: Player):
-        player1.reward = 0
-        player2.reward = 0
+        self.log_action.clear()
+        player1.clear()
+        player2.clear()
 
         for _ in range(self.number_battles):
             action1 = player1.action()
@@ -19,8 +20,6 @@ class Stage:
 
             player1.remember(action2)
             player2.remember(action1)
-
-            # print(action1, action2)
 
             self.log_action.append((action1, action2))
 

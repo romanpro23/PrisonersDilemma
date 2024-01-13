@@ -13,9 +13,9 @@ class Population:
 
     fitness_players: list
 
-    def __init__(self, size: int, mutation_rate=0.01):
+    def __init__(self, size: int, mutation_rate=0.025):
         self.size = size
-        self.players = [NeuralNetworkPlayer(5, input=10, hidden=[16, 8], output=1) for _ in range(size)]
+        self.players = [NeuralNetworkPlayer(6, input=12, hidden=[16, 8, 4], output=1) for _ in range(size)]
         self.mutation_rate = mutation_rate
 
         self.fitness_players = [0] * self.size
@@ -32,7 +32,7 @@ class Population:
         self.fitness_players = [0] * self.size
 
     def __recombination(self, mother, father):
-        child = NeuralNetworkPlayer(5, input=10, hidden=[16, 8], output=1)
+        child = NeuralNetworkPlayer(6, input=12, hidden=[16, 8, 4], output=1)
         brain = child.brain
         for child_param, mother_param, father_param \
                 in zip(brain.parameters(), mother.brain.parameters(), mother.brain.parameters()):

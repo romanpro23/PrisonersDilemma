@@ -12,7 +12,7 @@ stage = Stage(200)
 
 stage.battle(player1, player2)
 
-population = Population(64)
+population = Population(128)
 environment = Environment(population, stage)
 
 environment.survival(100)

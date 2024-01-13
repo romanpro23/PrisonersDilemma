@@ -44,14 +44,20 @@ class LinearModel(nn.Module):
 class NeuralNetworkPlayer(Player):
     brain: LinearModel
 
-    def __init__(self, memory_size=3, input=3 * 2, hidden=16, output=1):
-        super().__init__(memory_size=memory_size)
+    def __init__(self, memory_size=3, input=3 * 2, hidden=16, output=1, path=None, name="Neural network"):
+        super().__init__(memory_size=memory_size, name=name)
 
         for _ in range(memory_size):
             self.memory.append((-1, -1))
 
-        self.brain = LinearModel(input, hidden, output)
+        if path is None:
+            self.brain = LinearModel(input, hidden, output)
+        else:
+            self.brain = torch.load(path)
 
     def action(self):
         self.last_action = int(torch.round(self.brain(torch.flatten(torch.tensor(self.memory)))))
         return self.last_action
+
+    def load(self, path):
+        self.brain = torch.load(path)

@@ -9,11 +9,15 @@ class Player(ABC):
     memory_size: int
     reward: int
 
-    def __init__(self, memory_size=1):
+    name: str
+
+    def __init__(self, memory_size=1, name=None):
         self.last_action = 1
         self.memory = deque(maxlen=memory_size)
         self.memory_size = memory_size
-        self.reward = 0
+        self.name = name
+
+        self.clear()
 
     @abstractmethod
     def action(self):
@@ -21,3 +25,8 @@ class Player(ABC):
 
     def remember(self, enemy_action):
         self.memory.append((self.last_action, enemy_action))
+
+    def clear(self):
+        self.reward = 0
+        for _ in range(self.memory_size):
+            self.memory.append((-1, -1))
