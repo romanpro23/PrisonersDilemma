@@ -1,4 +1,5 @@
 import math
+import os
 import random
 import torch
 
@@ -6,39 +7,58 @@ from prisones_dilemma.bots.neural_network_player import NeuralNetworkPlayer
 
 
 class Population:
-    size: int
-    old_population: list
+    architecture: list
+    input: int
+
+    counter_population: int
+
+    parents: list
     players: list
+
     mutation_rate: float
 
-    fitness_players: list
+    parents_fitness: dict
 
-    def __init__(self, size: int, mutation_rate=0.025):
+    def __init__(self, size: int, input: int, architecture: list, mutation_rate=0.025):
         self.size = size
-        self.players = [NeuralNetworkPlayer(6, input=12, hidden=[16, 8, 4], output=1) for _ in range(size)]
+        self.input = input
+        self.architecture = architecture
+
+        self.players = [NeuralNetworkPlayer(input, architecture=architecture, name=f"GA #{i}") for i in range(size)]
         self.mutation_rate = mutation_rate
 
-        self.fitness_players = [0] * self.size
+        self.counter_population = size
 
-    def crossover(self):
-        sample = self.selection()
-        new_population = []
+    def crossover(self, players_fitness: dict):
+        sample = self.selection(players_fitness)
+
+        new_players = []
         for _ in range(self.size):
-            child = self.__recombination(self.players[random.choice(sample)], self.players[random.choice(sample)])
-            new_population.append(child)
+            mother_name = random.choice(sample)
+            father_name = random.choice(sample)
 
-        self.old_population = self.players
-        self.players = new_population
-        self.fitness_players = [0] * self.size
+            mother = next((player for player in self.players if player.name == mother_name))
+            father = next((player for player in self.players if player.name == father_name))
+
+            child = self.__recombination(mother, father)
+            new_players.append(child)
+
+        self.parents = self.players
+        self.players = new_players
+
+    def get_player(self, name):
+        for player in self.players:
+            if player.name == name:
+                return player
 
     def __recombination(self, mother, father):
-        child = NeuralNetworkPlayer(6, input=12, hidden=[16, 8, 4], output=1)
-        brain = child.brain
+        child = NeuralNetworkPlayer(self.input, architecture=self.architecture, name=f"GA #{self.counter_population}")
         for child_param, mother_param, father_param \
-                in zip(brain.parameters(), mother.brain.parameters(), mother.brain.parameters()):
+                in zip(child.brain.parameters(), mother.brain.parameters(), father.brain.parameters()):
             self.__crossover(child_param, mother_param, father_param)
             self.__mutation(child_param)
 
+        self.counter_population += 1
         return child
 
     def __crossover(self, child_param, mother_param, father_param):
@@ -46,10 +66,6 @@ class Population:
             mask = torch.rand_like(child_param) < 0.5
             child_param[mask] = mother_param[mask]
             child_param[~mask] = father_param[~mask]
-
-    def __crossover_avg(self, child_param, mother_param, father_param):
-        with torch.no_grad():
-            child_param[...] = (mother_param + father_param) / 2
 
     def __mutation(self, child_param):
         with torch.no_grad():
@@ -60,10 +76,15 @@ class Population:
             random_param = range_value * torch.rand_like(child_param) + min_value
             child_param[mask] = random_param[mask]
 
-    def selection(self):
-        avg_fitness = sum(self.fitness_players) / self.size
-        selection_sample = [i for i, fitness in enumerate(self.fitness_players)
-                            for _ in range(math.ceil(fitness / avg_fitness))]
+    def selection(self, fitness_players: dict):
+        avg_fitness = sum(fitness for fitness in fitness_players.values()) / len(self.players)
 
-        print(max(self.fitness_players) / self.size, min(self.fitness_players) / self.size)
+        selection_sample = [name for name, fitness in fitness_players.items()
+                            for _ in range(math.ceil(fitness * len(self.players) / avg_fitness))]
         return selection_sample
+
+    def save(self, path, players_fitness: dict):
+        os.makedirs(path)
+        for name, fitness in players_fitness.items():
+            player = next((player for player in self.players if player.name == name))
+            torch.save(player.brain, f"{path}/{fitness}_{name}")

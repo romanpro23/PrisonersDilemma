@@ -1,5 +1,4 @@
 from genetic_algorithm.population import Population
-from genetic_algorithm.population_environment import Environment
 from prisones_dilemma.arena import Arena
 from prisones_dilemma.bots.friedman_player import FriedmanPlayer
 from prisones_dilemma.bots.graaskamp_player import GraaskampPlayer
@@ -22,12 +21,29 @@ player6 = NoisyTitForTatPlayer()
 player7 = GraaskampPlayer()
 player8 = JossPlayer()
 
-players = [player1, player2, player3, player4, player5, player6, player7, player8]
+population = Population(16, 12, [24, 16, 8, 1], mutation_rate=0.1)
 
 stage = Stage(200)
 arena = Arena(stage)
 
-result = arena.evaluate(players, number_repetitions=5)
+count_epoch = 128
 
-for name, score in sorted(result.items(), key=lambda item: -item[1]):
-    print(f"{name}: {score}")
+players = [player1, player2, player3, player4, player5, player6, player7, player8]
+
+for epoch in range(count_epoch):
+    players = [player1, player2, player3, player4, player5, player6, player7, player8]
+    players.extend(population.players)
+
+    result = arena.evaluate(players, number_repetitions=1)
+
+    population_result = {}
+    for name, score in result.items():
+        if name.startswith("GA"):
+            population_result[name] = score
+
+    population.save(f"brains/epoch_{epoch}", population_result)
+    population.crossover(population_result)
+
+    for name, score in sorted(result.items(), key=lambda item: -item[1]):
+        print(f"{name}: {score}", end="  ")
+    print()
