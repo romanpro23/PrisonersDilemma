@@ -6,7 +6,7 @@ from prisones_dilemma.player import Player
 class GraaskampPlayer(Player):
     counter_play_false: int
 
-    def __init__(self, memory_size=1, name="Graaskamp"):
+    def __init__(self, memory_size=2, name="Graaskamp"):
         super().__init__(memory_size=memory_size, name=name)
 
     def action(self):

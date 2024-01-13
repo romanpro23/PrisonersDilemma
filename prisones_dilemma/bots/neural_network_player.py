@@ -6,32 +6,16 @@ from prisones_dilemma.player import Player
 
 
 class LinearModel(nn.Module):
-    def __init__(self, input, hidden=None, output=1):
+    def __init__(self, architecture: list):
         super(LinearModel, self).__init__()
         self.layers = nn.ModuleList()
 
-        if hidden is not None:
-            if isinstance(hidden, int):
-                self.layers.append(nn.Linear(input, hidden))
-                self.layers.append(nn.ReLU())
-                self.layers.append(nn.Linear(hidden, output))
-            elif isinstance(hidden, list):
-                self.layers.append(nn.Linear(input, hidden[0]))
-                self.layers.append(nn.ReLU())
-
-                input = hidden[0]
-
-                for count_neurons in hidden[1:]:
-                    self.layers.append(nn.Linear(input, count_neurons))
-                    self.layers.append(nn.ReLU())
-
-                    input = count_neurons
-
-                self.layers.append(nn.Linear(input, output))
-        else:
+        for input, output in zip(architecture[:-1], architecture[1:]):
             self.layers.append(nn.Linear(input, output))
-
-        self.layers.append(nn.Sigmoid())
+            if output != architecture[-1]:
+                self.layers.append(nn.ReLU())
+            else:
+                self.layers.append(nn.Sigmoid())
 
     def forward(self, x):
         if x.dtype == torch.int64:
@@ -44,14 +28,11 @@ class LinearModel(nn.Module):
 class NeuralNetworkPlayer(Player):
     brain: LinearModel
 
-    def __init__(self, memory_size=3, input=3 * 2, hidden=16, output=1, path=None, name="Neural network"):
+    def __init__(self, memory_size=12, architecture=(24, 16, 8, 1), path=None, name="Neural network"):
         super().__init__(memory_size=memory_size, name=name)
 
-        for _ in range(memory_size):
-            self.memory.append((-1, -1))
-
         if path is None:
-            self.brain = LinearModel(input, hidden, output)
+            self.brain = LinearModel(architecture)
         else:
             self.brain = torch.load(path)
 

@@ -5,14 +5,14 @@ from prisones_dilemma.bots.neural_network_player import NeuralNetworkPlayer
 from prisones_dilemma.bots.random_player import RandomPlayer
 from prisones_dilemma.bots.tester_player import TesterPlayer
 from prisones_dilemma.bots.tit_for_tat_player import TitForTatPlayer
-from prisones_dilemma.bots.tit_for_two_tat_player import TitForTwoTatPlayer
+from prisones_dilemma.bots.tit_for_2tat_player import TitFor2TatPlayer
 from prisones_dilemma.bots.true_player import TruePlayer
 from prisones_dilemma.stage import Stage
 
 player1 = NeuralNetworkPlayer(6, path="brains/epoch_3/nn_297.90625")
 player2 = TitForTatPlayer()
 player3 = FriedmanPlayer()
-player4 = TitForTwoTatPlayer()
+player4 = TitFor2TatPlayer()
 player5 = TesterPlayer()
 player6 = TruePlayer()
 # player5 = NeuralNetworkPlayer(6, path="brains/epoch_1/nn_498.5")
