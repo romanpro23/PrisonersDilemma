@@ -47,16 +47,9 @@ class Population:
             child_param[mask] = mother_param[mask]
             child_param[~mask] = father_param[~mask]
 
-    def __crossover_onpnt(self, c, m, f):
+    def __crossover_avg(self, child_param, mother_param, father_param):
         with torch.no_grad():
-            rand_p = torch.randint(0, m.shape[0], (1,))
-            mask = torch.cat([i < rand_p for i in range(m.shape[0])])
-            c[mask] = m[mask]
-            c[~mask] = f[~mask]
-
-    def _crossover_avg(self, c, m, f):
-        with torch.no_grad():
-            c[...] = (m + f) / 2
+            child_param[...] = (mother_param + father_param) / 2
 
     def __mutation(self, child_param):
         with torch.no_grad():

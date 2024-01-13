@@ -1,9 +1,11 @@
+import random
+
 from prisones_dilemma.player import Player
 
 
-class TitForTatPlayer(Player):
+class TesterPlayer(Player):
 
-    def __init__(self, memory_size=1, name="TitForTat"):
+    def __init__(self, memory_size=1, name="Tester"):
         super().__init__(memory_size=memory_size, name=name)
 
     def action(self):

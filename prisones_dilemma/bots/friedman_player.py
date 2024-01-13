@@ -14,5 +14,5 @@ class FriedmanPlayer(Player):
         return self.last_action
 
     def clear(self):
-        super().clear()
+        super(FriedmanPlayer, self).clear()
         self.play_false = False
