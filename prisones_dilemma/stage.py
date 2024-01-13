@@ -20,7 +20,7 @@ class Stage:
             player1.remember(action2)
             player2.remember(action1)
 
-            print(action1, action2)
+            # print(action1, action2)
 
             self.log_action.append((action1, action2))
 
@@ -34,7 +34,7 @@ class Stage:
             else:
                 player2.reward += 5
 
-        print(f"Reward player №1: {player1.reward}")
-        print(f"Reward player №2: {player2.reward}")
+        # print(f"Reward player №1: {player1.reward}")
+        # print(f"Reward player №2: {player2.reward}")
 
         return player1.reward, player2.reward
