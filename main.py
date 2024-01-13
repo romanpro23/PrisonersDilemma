@@ -1,16 +1,11 @@
-# This is a sample Python script.
+from prisones_dilemma.bots.neural_network_player import NeuralNetworkPlayer
+from prisones_dilemma.bots.random_player import RandomPlayer
+from prisones_dilemma.bots.tit_for_tat_player import TitForTatPlayer
+from prisones_dilemma.stage import Stage
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+player1 = NeuralNetworkPlayer()
+player2 = TitForTatPlayer()
 
+stage = Stage(200)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+stage.battle(player1, player2)
