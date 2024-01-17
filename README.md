@@ -26,6 +26,10 @@ And then the simulation is played again with new players.
 
 **Analysis of results**
 
+**First experiment**
+
+**_For small size population(24 players) and deep architecture that has 3 layers with 16 nodes in the first hidden layer, 8 in the second and one output node_**
+
 At the beginning, when there are a large number of maladaptive players who choose only interaction or betrayal, players who choose only betrayal gain a large number of points, which is reflected in the diagram.
 
 ![Scores_epoch_2](https://github.com/romanpro23/PrisonersDilemma/assets/87851373/5e500796-1e43-4c67-af24-924c1a1b68ab)
@@ -34,4 +38,14 @@ However, later on, when the number of bad players decreases due to the genetic a
 
 ![Scores_epoch_32](https://github.com/romanpro23/PrisonersDilemma/assets/87851373/a10a0ee6-7ad2-478b-9b5a-f0817e2a82ff)
 
-We can summarize the results that the established algorithms can be considered the most effective, and there is no need to look for other solutions using different techniques.
+**_For normal size population(56 players) and architecture that hasn`t hidden layer, has only one output node with sigmoid activation_**
+
+The simpler model gives identical results in the beginning, but since we have a larger population, we have many successful players crowding out players with popular strategies.
+
+![image](https://github.com/romanpro23/PrisonersDilemma/assets/87851373/fcbbfbbc-7fdc-4f73-9e68-9bd857fe84e7)
+
+When I use a smaller architecture with a single layer, I get better results. This is because the lighter architecture is easy to train and we get good results before all players become similar.
+
+![Scores_epoch_64](https://github.com/romanpro23/PrisonersDilemma/assets/87851373/90af531d-f76f-4a80-b9fb-27287d615b7d)
+
+This study showed that depending on the initial settings of the models and population parameters, both good and worse results can be obtained. The study showed that time-tested strategies perform well compared to genetic algorithm-optimized models. However, with the correct settings, the genetic algorithm helps to find solutions that are very efficient.
