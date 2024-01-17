@@ -25,14 +25,14 @@ player7 = GraaskampPlayer()
 player8 = JossPlayer()
 
 # Create a population with a neural network architecture
-population = Population(24, 12, [24, 16, 8, 1], mutation_rate=0.05)
+population = Population(56, 12, [24, 1], mutation_rate=0.1, parents_probability=0.0)
 
 # Create a stage for battles
 stage = Stage(200)
 arena = Arena(stage)
 
 # Set the number of epochs for the genetic algorithm
-count_epoch = 32
+count_epoch = 128
 
 # Initial list of players
 players = [player1, player2, player3, player4, player5, player6, player7, player8]
@@ -61,22 +61,24 @@ for epoch in range(count_epoch):
     # Extract names and scores for the top players (excluding population players)
     names = []
     scores = []
+    print(f"\nEpoch {epoch} ", end="")
     for name, score in sorted(result.items(), key=lambda item: -item[1])[:15]:
         names.append(name)
         scores.append(score)
+        print(f"{name}: {score}", end=" ")
 
     # Plot a horizontal bar chart for the top players
     plt.barh(names[::-1], scores[::-1], color='lightblue')
 
     # Set plot details
-    plt.title(f'Top players in the epoch {epoch+1}')
+    plt.title(f'Top players in the epoch {epoch + 1}')
     plt.xlabel('Names')
     plt.ylabel('Scores')
 
     # Save the bar chart as an image
     if not os.path.exists("diagrams"):
         os.makedirs("diagrams")
-    plt.savefig(f"diagrams/Scores_epoch_{epoch+1}")
+    plt.savefig(f"diagrams/Scores_epoch_{epoch + 1}")
 
     # Clear the plot for the next iteration
     plt.clf()

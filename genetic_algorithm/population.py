@@ -5,6 +5,7 @@ import torch
 
 from prisones_dilemma.bots.neural_network_player import NeuralNetworkPlayer
 
+
 class Population:
     """
     Represents a population of NeuralNetworkPlayer instances evolving over generations.
@@ -12,7 +13,7 @@ class Population:
     """
 
     architecture: list
-    input: int
+    input_size: int
 
     counter_population: int
 
@@ -20,10 +21,12 @@ class Population:
     players: list
 
     mutation_rate: float
+    parents_probability: float
 
-    parents_fitness: dict
+    parents_fitness: list
+    alias: str
 
-    def __init__(self, size: int, input: int, architecture: list, mutation_rate=0.025):
+    def __init__(self, size: int, input_size: int, architecture: list, mutation_rate=0.025, parents_probability=0.25, alias="GA"):
         """
         Initializes a population of NeuralNetworkPlayers.
 
@@ -35,15 +38,19 @@ class Population:
         """
         # Initialize the Population
         self.size = size
-        self.input = input
+        self.input_size = input_size
         self.architecture = architecture
 
         # Create a list of NeuralNetworkPlayer instances as the population
-        self.players = [NeuralNetworkPlayer(input, architecture=architecture, name=f"GA #{i}") for i in range(size)]
+        self.players = [NeuralNetworkPlayer(input_size, architecture=architecture, name=f"{alias} #{i}") for i in range(size)]
+        self.parents = []
+
         self.mutation_rate = mutation_rate
+        self.parents_probability = parents_probability
 
         # Counter to keep track of the population
         self.counter_population = size
+        self.alias = alias
 
     def crossover(self, players_fitness: dict):
         """
@@ -52,16 +59,21 @@ class Population:
         Parameters:
         - players_fitness (dict): Dictionary containing the fitness scores of players in the current generation.
         """
-        sample = self.selection(players_fitness)
+        population_fitness = self.selection(players_fitness)
 
         new_players = []
         for _ in range(self.size):
-            mother_name = random.choice(sample)
-            father_name = random.choice(sample)
+            parents_mother = self.parents and random.random() < self.parents_probability
+            parents_father = self.parents and random.random() < self.parents_probability
+
+            mother_name = random.choice(self.parents_fitness) if parents_mother else random.choice(population_fitness)
+            father_name = random.choice(self.parents_fitness) if parents_father else random.choice(population_fitness)
 
             # Select mother and father based on their names
-            mother = next((player for player in self.players if player.name == mother_name))
-            father = next((player for player in self.players if player.name == father_name))
+            mother = next(
+                (player for player in (self.parents if parents_mother else self.players) if player.name == mother_name))
+            father = next(
+                (player for player in (self.parents if parents_father else self.players) if player.name == father_name))
 
             # Create a child using recombination of mother and father
             child = self.__recombination(mother, father)
@@ -70,6 +82,8 @@ class Population:
         # Update the current generation's parents and players
         self.parents = self.players
         self.players = new_players
+
+        self.parents_fitness = population_fitness
 
     def get_player(self, name):
         """
@@ -96,7 +110,8 @@ class Population:
         Returns:
         - NeuralNetworkPlayer: The child player created through recombination.
         """
-        child = NeuralNetworkPlayer(self.input, architecture=self.architecture, name=f"GA #{self.counter_population}")
+        child = NeuralNetworkPlayer(self.input_size, architecture=self.architecture,
+                                    name=f"{self.alias} #{self.counter_population}")
         for child_param, mother_param, father_param \
                 in zip(child.brain.parameters(), mother.brain.parameters(), father.brain.parameters()):
             self.__crossover(child_param, mother_param, father_param)
@@ -146,10 +161,14 @@ class Population:
         - list: A sample of player names based on their fitness for use in crossover.
         """
         avg_fitness = sum(fitness for fitness in fitness_players.values()) / len(self.players)
+        min_fitness = min(fitness for fitness in fitness_players.values())
+
+        var_fitness = avg_fitness - min_fitness
 
         # Create a selection sample based on fitness
         selection_sample = [name for name, fitness in fitness_players.items()
-                            for _ in range(math.ceil(fitness * 10 / avg_fitness))]
+                            for _ in range(max(0, math.ceil(fitness - var_fitness) // 10))]
+
         return selection_sample
 
     def save(self, path, players_fitness: dict):
